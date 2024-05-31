@@ -13,15 +13,16 @@ public class Menu {
         do {
             System.out.println("\n===== Controle de Estoque =====");
             System.out.println("1. Cadastrar Setor");
-            System.out.println("2. Cadastrar Produto");
-            System.out.println("3. Listar Produtos");
-            System.out.println("4. Buscar Produto");
-            System.out.println("5. Editar Produto");
-            System.out.println("6. Excluir Produto");
-            System.out.println("7. Inventário do Setor");
-            System.out.println("8. Depreciar Produtos do Estoque");
-            System.out.println("9. Depreciar Produtos de um Setor");
-            System.out.println("10. Sair");
+            System.out.println("2. Listar Setores");
+            System.out.println("3. Cadastrar Produto");
+            System.out.println("4. Listar Produtos");
+            System.out.println("5. Buscar Produto");
+            System.out.println("6. Editar Produto");
+            System.out.println("7. Excluir Produto");
+            System.out.println("8. Inventário do Setor");
+            System.out.println("9. Depreciar Produtos do Estoque");
+            System.out.println("10. Depreciar Produtos de um Setor");
+            System.out.println("11. Sair");
 
             opcao = solicitarOpcao();
             switch (opcao) {
@@ -29,36 +30,39 @@ public class Menu {
                     cadastrarSetor();
                     break;
                 case 2:
-                    cadastrarProduto();
+                    listarSetores();
                     break;
                 case 3:
-                    listarProdutos();
+                    cadastrarProduto();
                     break;
                 case 4:
-                    buscarProduto();
+                    listarProdutos();
                     break;
                 case 5:
-                    editarProduto();
+                    buscarProduto();
                     break;
                 case 6:
-                    excluirProduto();
+                    editarProduto();
                     break;
                 case 7:
-                    inventarioSetor();
+                    excluirProduto();
                     break;
                 case 8:
-                    depreciarEstoque();
+                    inventarioSetor();
                     break;
                 case 9:
-                    depreciarSetor();
+                    depreciarEstoque();
                     break;
                 case 10:
+                    depreciarSetor();
+                    break;
+                case 11:
                     System.out.println("Saindo do programa...");
                     break;
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
             }
-        } while (opcao != 10);
+        } while (opcao != 11);
     }
 
     private static int solicitarOpcao() {
@@ -81,6 +85,13 @@ public class Menu {
         String nomeSetor = scanner.nextLine();
         setores.add(new Setor(nomeSetor));
         System.out.println("Setor cadastrado com sucesso!");
+    }
+
+    private static void listarSetores() {
+        System.out.println("\n===== Lista de Setores =====");
+        for (Setor setor : setores) {
+            System.out.println("Nome do Setor: " + setor.getNome());
+        }
     }
 
     private static void cadastrarProduto() {
@@ -164,7 +175,7 @@ public class Menu {
                 System.out.println("Produto encontrado no setor: " + setor.getNome());
                 System.out.println("Nome: " + produto.getNome());
                 System.out.println("Código: " + produto.getCodigo());
-                System.out.println("Quantidade: " + produto.getQuantidadeEstoque());
+                System.out.println("Quantidade em estoque: " + produto.getQuantidadeEstoque());
                 System.out.println("Preço: " + produto.getPreco());
                 System.out.println("Descrição: " + produto.getDescricao());
                 return;
@@ -199,7 +210,7 @@ public class Menu {
                 String novoPrecoStr = scanner.nextLine();
                 if (!novoPrecoStr.isEmpty()) produto.setPreco(Double.parseDouble(novoPrecoStr));
 
-                System.out.print("Nova descrição (deixe vazio para manter a atual): ");
+                System.out.print("Nova descrição (deixe vazio para manter o atual): ");
                 String novaDescricao = scanner.nextLine();
                 if (!novaDescricao.isEmpty()) produto.setDescricao(novaDescricao);
 
@@ -241,7 +252,15 @@ public class Menu {
             return;
         }
 
+        System.out.println("\n===== Inventário do Setor: " + setor.getNome() + " =====");
+        System.out.printf("%-20s | %-10s | %-10s\n", "Nome", "Preço", "Descrição");
+        System.out.println("---------------------------------------------------------");
+        for (Produto produto : setor.getProdutos()) {
+            System.out.printf("%-20s | %-10.2f | %-10s\n", produto.getNome(), produto.getPreco(), produto.getDescricao());
+        }
+
         double valorTotal = setor.calcularValorTotal();
+        System.out.println("---------------------------------------------------------");
         System.out.println("Valor total dos produtos no setor " + setor.getNome() + ": " + valorTotal);
     }
 
