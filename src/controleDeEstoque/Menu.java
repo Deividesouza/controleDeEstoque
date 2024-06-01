@@ -1,105 +1,76 @@
 package controleDeEstoque;
 
+import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
 
 public class Menu {
-    static List<Setor> setores = new ArrayList<>();
+    public static List<Setor> setores = new ArrayList<>();
     private static Scanner scanner = new Scanner(System.in);
 
     public static void exibirMenu() {
-        int opcao;
+        int opcao = 0;
         do {
             System.out.println("\n===== Controle de Estoque =====");
             System.out.println("1. Cadastrar Setor");
-            System.out.println("2. Listar Setores");
-            System.out.println("3. Cadastrar Produto");
-            System.out.println("4. Listar Produtos");
-            System.out.println("5. Buscar Produto");
-            System.out.println("6. Editar Produto");
-            System.out.println("7. Excluir Produto");
-            System.out.println("8. Inventário do Setor");
-            System.out.println("9. Depreciar Produtos do Estoque");
-            System.out.println("10. Depreciar Produtos de um Setor");
-            System.out.println("11. Sair");
+            System.out.println("2. Cadastrar Produto");
+            System.out.println("3. Listar Produtos");
+            System.out.println("4. Buscar Produto");
+            System.out.println("5. Editar Produto");
+            System.out.println("6. Excluir Produto");
+            System.out.println("7. Inventário do Setor");
+            System.out.println("8. Depreciar Estoque");
+            System.out.println("9. Depreciar Setor");
+            System.out.println("10. Sair");
+            System.out.print("Escolha uma opção: ");
 
-            opcao = solicitarOpcao();
+            String opcaoStr = scanner.nextLine();
+            try {
+                opcao = Integer.parseInt(opcaoStr);
+            } catch (NumberFormatException e) {
+                System.out.println("Erro: A opção deve ser um número inteiro. Por favor, tente novamente.");
+                continue;
+            }
+
             switch (opcao) {
                 case 1:
                     cadastrarSetor();
                     break;
                 case 2:
-                    listarSetores();
-                    break;
-                case 3:
                     cadastrarProduto();
                     break;
-                case 4:
+                case 3:
                     listarProdutos();
                     break;
-                case 5:
+                case 4:
                     buscarProduto();
                     break;
-                case 6:
+                case 5:
                     editarProduto();
                     break;
-                case 7:
+                case 6:
                     excluirProduto();
                     break;
-                case 8:
+                case 7:
                     inventarioSetor();
                     break;
-                case 9:
+                case 8:
                     depreciarEstoque();
                     break;
-                case 10:
+                case 9:
                     depreciarSetor();
                     break;
-                case 11:
+                case 10:
                     System.out.println("Saindo do programa...");
                     break;
                 default:
                     System.out.println("Opção inválida. Tente novamente.");
             }
-        } while (opcao != 11);
-    }
-
-    private static int solicitarOpcao() {
-        boolean entradaValida = false;
-        int opcao = 0;
-        while (!entradaValida) {
-            System.out.print("Escolha uma opção: ");
-            try {
-                opcao = Integer.parseInt(scanner.nextLine());
-                entradaValida = true;
-            } catch (NumberFormatException e) {
-                System.out.println("Erro: A opção deve ser um número inteiro. Por favor, tente novamente.");
-            }
-        }
-        return opcao;
-    }
-
-    private static void cadastrarSetor() {
-        System.out.print("Nome do setor: ");
-        String nomeSetor = scanner.nextLine();
-        setores.add(new Setor(nomeSetor));
-        System.out.println("Setor cadastrado com sucesso!");
-    }
-
-    private static void listarSetores() {
-        System.out.println("\n===== Lista de Setores =====");
-        for (Setor setor : setores) {
-            System.out.println("Nome do Setor: " + setor.getNome());
-        }
+        } while (opcao != 10);
     }
 
     private static void cadastrarProduto() {
-        if (setores.isEmpty()) {
-            System.out.println("Nenhum setor cadastrado. Por favor, cadastre um setor primeiro.");
-            return;
-        }
-
         System.out.print("Nome do setor: ");
         String nomeSetor = scanner.nextLine();
         Setor setor = buscarSetor(nomeSetor);
@@ -108,11 +79,12 @@ public class Menu {
             return;
         }
 
-        System.out.print("Nome do produto: ");
+        System.out.print("Nome: ");
         String nome = scanner.nextLine();
+
         int codigo;
         while (true) {
-            System.out.print("Código do produto: ");
+            System.out.print("Código: ");
             String codigoStr = scanner.nextLine();
             try {
                 codigo = Integer.parseInt(codigoStr);
@@ -125,96 +97,113 @@ public class Menu {
                 System.out.println("Erro: O código deve ser um número inteiro. Por favor, tente novamente.");
             }
         }
-        System.out.print("Quantidade em estoque: ");
-        int quantidadeEstoque = Integer.parseInt(scanner.nextLine());
+
+        System.out.print("Quantidade em Estoque: ");
+        int quantidade = Integer.parseInt(scanner.nextLine());
+
         System.out.print("Preço: ");
         double preco = Double.parseDouble(scanner.nextLine());
+
         System.out.print("Descrição: ");
         String descricao = scanner.nextLine();
 
-        Produto produto = new Produto(nome, codigo, quantidadeEstoque, preco, descricao);
-        setor.adicionarProduto(produto);
+        System.out.print("Produto perecível? (S/N): ");
+        boolean perecivel = scanner.nextLine().equalsIgnoreCase("S");
+
+        if (perecivel) {
+            System.out.print("Data de validade (AAAA-MM-DD): ");
+            LocalDate dataValidade = LocalDate.parse(scanner.nextLine());
+
+            System.out.print("Refrigerado? (S/N): ");
+            boolean refrigerado = scanner.nextLine().equalsIgnoreCase("S");
+
+            setor.adicionarProduto(new ProdutoPerecivel(nome, codigo, quantidade, preco, descricao, dataValidade, refrigerado));
+        } else {
+            setor.adicionarProduto(new Produto(nome, codigo, quantidade, preco, descricao));
+        }
+
         System.out.println("Produto cadastrado com sucesso!");
     }
 
     private static boolean codigoJaExiste(int codigo) {
         for (Setor setor : setores) {
-            for (Produto produto : setor.getProdutos()) {
-                if (produto.getCodigo() == codigo) {
-                    return true;
-                }
+            if (setor.buscarProduto(codigo) != null) {
+                return true;
             }
         }
         return false;
     }
 
     private static void listarProdutos() {
+        System.out.println("\n===== Lista de Produtos =====");
         for (Setor setor : setores) {
-            System.out.println("\nSetor: " + setor.getNome());
-            System.out.printf("%-20s | %-10s | %-10s\n", "Nome", "Código", "Quantidade");
-            System.out.println("-----------------------------------------------");
-            for (Produto produto : setor.getProdutos()) {
-                System.out.printf("%-20s | %-10d | %-10d\n", produto.getNome(), produto.getCodigo(), produto.getQuantidadeEstoque());
-            }
+            System.out.println("Setor: " + setor.getNome());
+            System.out.printf("%-20s | %-10s | %-10s | %-10s | %-30s | %-10s | %-15s\n", "Nome", "Código", "Quantidade", "Preço", "Descrição", "Validade", "Refrigerado");
+            System.out.println("----------------------------------------------------------------------------------------------------------------------");
+            setor.listarProdutosOrdenados();
+            System.out.println();
         }
     }
 
     private static void buscarProduto() {
         System.out.print("Código do produto: ");
-        int codigo;
-        try {
-            codigo = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Erro: O código deve ser um número inteiro.");
-            return;
-        }
+        int codigo = Integer.parseInt(scanner.nextLine());
 
         for (Setor setor : setores) {
             Produto produto = setor.buscarProduto(codigo);
             if (produto != null) {
-                System.out.println("Produto encontrado no setor: " + setor.getNome());
-                System.out.println("Nome: " + produto.getNome());
-                System.out.println("Código: " + produto.getCodigo());
-                System.out.println("Quantidade em estoque: " + produto.getQuantidadeEstoque());
-                System.out.println("Preço: " + produto.getPreco());
-                System.out.println("Descrição: " + produto.getDescricao());
+                exibirDetalhesProduto(produto);
                 return;
             }
         }
         System.out.println("Produto não encontrado.");
     }
 
+    private static void exibirDetalhesProduto(Produto produto) {
+        System.out.println("Produto encontrado:");
+        System.out.println("Código: " + produto.getCodigo());
+        System.out.println("Nome: " + produto.getNome());
+        System.out.println("Quantidade em Estoque: " + produto.getQuantidadeEstoque());
+        System.out.println("Preço: " + produto.getPreco());
+        System.out.println("Descrição: " + produto.getDescricao());
+        if (produto instanceof ProdutoPerecivel) {
+            ProdutoPerecivel perecivel = (ProdutoPerecivel) produto;
+            System.out.println("Data de Validade: " + perecivel.getDataValidade());
+            System.out.println("Refrigerado: " + (perecivel.isRefrigerado() ? "Sim" : "Não"));
+        } else {
+            System.out.println("Perecível: Não");
+        }
+    }
+
     private static void editarProduto() {
         System.out.print("Código do produto: ");
-        int codigo;
-        try {
-            codigo = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Erro: O código deve ser um número inteiro.");
-            return;
-        }
+        int codigo = Integer.parseInt(scanner.nextLine());
 
         for (Setor setor : setores) {
             Produto produto = setor.buscarProduto(codigo);
             if (produto != null) {
-                System.out.println("Produto encontrado no setor: " + setor.getNome());
-                System.out.print("Novo nome (deixe vazio para manter o atual): ");
-                String novoNome = scanner.nextLine();
-                if (!novoNome.isEmpty()) produto.setNome(novoNome);
+                System.out.print("Novo nome: ");
+                produto.setNome(scanner.nextLine());
 
-                System.out.print("Nova quantidade (deixe vazio para manter a atual): ");
-                String novaQuantidadeStr = scanner.nextLine();
-                if (!novaQuantidadeStr.isEmpty()) produto.setQuantidadeEstoque(Integer.parseInt(novaQuantidadeStr));
+                System.out.print("Nova quantidade em Estoque: ");
+                produto.setQuantidadeEstoque(Integer.parseInt(scanner.nextLine()));
 
-                System.out.print("Novo preço (deixe vazio para manter o atual): ");
-                String novoPrecoStr = scanner.nextLine();
-                if (!novoPrecoStr.isEmpty()) produto.setPreco(Double.parseDouble(novoPrecoStr));
+                System.out.print("Novo preço: ");
+                produto.setPreco(Double.parseDouble(scanner.nextLine()));
 
-                System.out.print("Nova descrição (deixe vazio para manter o atual): ");
-                String novaDescricao = scanner.nextLine();
-                if (!novaDescricao.isEmpty()) produto.setDescricao(novaDescricao);
+                System.out.print("Nova descrição: ");
+                produto.setDescricao(scanner.nextLine());
 
-                setor.editarProduto(codigo, produto);
+                if (produto instanceof ProdutoPerecivel) {
+                    ProdutoPerecivel produtoPerecivel = (ProdutoPerecivel) produto;
+
+                    System.out.print("Nova data de validade (AAAA-MM-DD): ");
+                    produtoPerecivel.setDataValidade(LocalDate.parse(scanner.nextLine()));
+
+                    System.out.print("Refrigerado? (S/N): ");
+                    produtoPerecivel.setRefrigerado(scanner.nextLine().equalsIgnoreCase("S"));
+                }
+
                 System.out.println("Produto editado com sucesso!");
                 return;
             }
@@ -224,19 +213,18 @@ public class Menu {
 
     private static void excluirProduto() {
         System.out.print("Código do produto: ");
-        int codigo;
-        try {
-            codigo = Integer.parseInt(scanner.nextLine());
-        } catch (NumberFormatException e) {
-            System.out.println("Erro: O código deve ser um número inteiro.");
-            return;
-        }
+        int codigo = Integer.parseInt(scanner.nextLine());
 
         for (Setor setor : setores) {
             Produto produto = setor.buscarProduto(codigo);
             if (produto != null) {
-                setor.removerProduto(codigo);
-                System.out.println("Produto excluído com sucesso!");
+                System.out.print("Tem certeza que deseja excluir o produto? (S/N): ");
+                if (scanner.nextLine().equalsIgnoreCase("S")) {
+                    setor.removerProduto(codigo);
+                    System.out.println("Produto excluído com sucesso!");
+                } else {
+                    System.out.println("Exclusão cancelada.");
+                }
                 return;
             }
         }
@@ -252,26 +240,24 @@ public class Menu {
             return;
         }
 
-        System.out.println("\n===== Inventário do Setor: " + setor.getNome() + " =====");
-        System.out.printf("%-20s | %-10s | %-10s\n", "Nome", "Preço", "Descrição");
-        System.out.println("---------------------------------------------------------");
+        double valorTotal = 0;
+        System.out.printf("%-20s | %-10s | %-10s | %-10s | %-30s | %-10s | %-15s\n", "Nome", "Código", "Quantidade", "Preço", "Descrição", "Validade", "Refrigerado");
+        System.out.println("----------------------------------------------------------------------------------------------------------------------");
         for (Produto produto : setor.getProdutos()) {
-            System.out.printf("%-20s | %-10.2f | %-10s\n", produto.getNome(), produto.getPreco(), produto.getDescricao());
+            System.out.println(produto);
+            valorTotal += produto.getPreco() * produto.getQuantidadeEstoque();
         }
-
-        double valorTotal = setor.calcularValorTotal();
-        System.out.println("---------------------------------------------------------");
-        System.out.println("Valor total dos produtos no setor " + setor.getNome() + ": " + valorTotal);
+        System.out.printf("Valor Total do Inventário: R$ %.2f\n", valorTotal);
     }
 
     private static void depreciarEstoque() {
-        System.out.print("Porcentagem de depreciação: ");
+        System.out.print("Digite a porcentagem de depreciação: ");
         double porcentagem = Double.parseDouble(scanner.nextLine());
 
         for (Setor setor : setores) {
             setor.depreciarProdutos(porcentagem);
         }
-        System.out.println("Todos os produtos do estoque foram depreciados em " + porcentagem + "%.");
+        System.out.println("Depreciação aplicada a todos os produtos do estoque.");
     }
 
     private static void depreciarSetor() {
@@ -283,11 +269,18 @@ public class Menu {
             return;
         }
 
-        System.out.print("Porcentagem de depreciação: ");
+        System.out.print("Digite a porcentagem de depreciação: ");
         double porcentagem = Double.parseDouble(scanner.nextLine());
 
         setor.depreciarProdutos(porcentagem);
-        System.out.println("Todos os produtos do setor " + setor.getNome() + " foram depreciados em " + porcentagem + "%.");
+        System.out.println("Depreciação aplicada aos produtos do setor.");
+    }
+
+    private static void cadastrarSetor() {
+        System.out.print("Nome do setor: ");
+        String nomeSetor = scanner.nextLine();
+        setores.add(new Setor(nomeSetor));
+        System.out.println("Setor cadastrado com sucesso!");
     }
 
     private static Setor buscarSetor(String nomeSetor) {

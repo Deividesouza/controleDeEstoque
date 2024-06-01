@@ -1,13 +1,13 @@
 package controleDeEstoque;
 
-public class Produto {
+// Classe Produto representa um item genérico no estoque
+public class Produto implements Comparable<Produto> {
     private String nome;
     private int codigo;
     private int quantidadeEstoque;
     private double preco;
     private String descricao;
 
-    // Construtor
     public Produto(String nome, int codigo, int quantidadeEstoque, double preco, String descricao) {
         this.nome = nome;
         this.codigo = codigo;
@@ -16,7 +16,7 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    // Getters e Setters
+    // Getters e setters para os atributos
     public String getNome() {
         return nome;
     }
@@ -57,8 +57,14 @@ public class Produto {
         this.descricao = descricao;
     }
 
-    // Método para depreciar o valor do produto em uma porcentagem especificada
-    public void depreciar(double porcentagem) {
-        this.preco -= this.preco * (porcentagem / 100);
+    @Override
+    public int compareTo(Produto outroProduto) {
+        return this.nome.compareTo(outroProduto.getNome());
+    }
+
+    @Override
+    public String toString() {
+        return String.format("%-20s | %-10d | %-10d | %-10.2f | %-30s",
+                nome, codigo, quantidadeEstoque, preco, descricao);
     }
 }
