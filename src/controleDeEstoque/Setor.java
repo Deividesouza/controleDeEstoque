@@ -13,6 +13,11 @@ public class Setor {
         this.produtos = new ArrayList<>();
     }
 
+       // Método para alterar o nome do setor
+    public void setNome(String novoNome) {
+        this.nome = novoNome;
+    }
+
     public String getNome() {
         return nome;
     }

@@ -35,7 +35,6 @@ public class Principal {
         Menu.setores.add(bebidas);
         Menu.setores.add(laticinios);
         Menu.setores.add(frutas);
-
         Menu.exibirMenu();
     }
 }
